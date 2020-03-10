@@ -4,9 +4,10 @@ import java.util.Random;
 
 public class Main extends PApplet {
 
-    public static int windowWidth = 900;
-    public static int windowHeight = 900;
-    public static int cellSize = 20;
+    public static final int windowWidth = 900;
+    public static final int windowHeight = 900;
+    public static final int cellSize = 20;
+    public static final int firstGenProbability = 60;
 
     private Cell[][] currentGen;
     private Cell[][] nextGen;
@@ -24,6 +25,7 @@ public class Main extends PApplet {
         }
         prepareFirstGen();
         drawCells();
+        noLoop();
     }
 
     @Override
@@ -56,6 +58,11 @@ public class Main extends PApplet {
                     redraw();
                     break;
 
+                case 'r':
+                case 'R':
+                    prepareFirstGen();
+                    redraw();
+                    break;
             }
         }
     }
@@ -63,27 +70,25 @@ public class Main extends PApplet {
     @Override
     public void mousePressed() {
         if (!looping){
-            Cell pressedCell = getPressedCell(mouseX, mouseY);
-            if (mouseButton == LEFT){
-                pressedCell.revive();
-            } else if (mouseButton == RIGHT){
-                pressedCell.kill();
-            }
-            redraw();
+            processMouseInput();
         }
     }
 
     @Override
     public void mouseDragged() {
         if (!looping){
-            Cell pressedCell = getPressedCell(mouseX, mouseY);
-            if (mouseButton == LEFT){
-                pressedCell.revive();
-            } else if (mouseButton == RIGHT){
-                pressedCell.kill();
-            }
-            redraw();
+            processMouseInput();
         }
+    }
+
+    private void processMouseInput(){
+        Cell pressedCell = getPressedCell(mouseX, mouseY);
+        if (mouseButton == LEFT){
+            pressedCell.revive();
+        } else if (mouseButton == RIGHT){
+            pressedCell.kill();
+        }
+        redraw();
     }
 
     private void prepareFirstGen() {
@@ -95,8 +100,8 @@ public class Main extends PApplet {
         for (int y = 0; y < windowHeight / cellSize; y++) {
             for (int x = 0; x < windowWidth / cellSize; x++) {
                 currentGen[y][x] = new Cell(x * cellSize, y * cellSize);
-                randomInt = random.nextInt(5);
-                if (randomInt < 2) {
+                randomInt = random.nextInt(100);
+                if (randomInt < firstGenProbability) {
                     currentGen[y][x].revive();
                 }
             }
