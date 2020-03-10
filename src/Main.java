@@ -83,12 +83,14 @@ public class Main extends PApplet {
 
     private void processMouseInput(){
         Cell pressedCell = getPressedCell(mouseX, mouseY);
-        if (mouseButton == LEFT){
-            pressedCell.revive();
-        } else if (mouseButton == RIGHT){
-            pressedCell.kill();
+        if (pressedCell != null){
+            if (mouseButton == LEFT){
+                pressedCell.revive();
+            } else if (mouseButton == RIGHT){
+                pressedCell.kill();
+            }
+            redraw();
         }
-        redraw();
     }
 
     private void prepareFirstGen() {
@@ -148,7 +150,11 @@ public class Main extends PApplet {
     }
 
     private Cell getPressedCell(int x, int y){
-        return currentGen[y / cellSize][x / cellSize];
+        try {
+            return currentGen[y / cellSize][x / cellSize];
+        } catch (IndexOutOfBoundsException ex){
+            return null;
+        }
     }
 
     public static void main(String[] args) {
