@@ -13,6 +13,12 @@ public class Cell {
         alive = false;
     }
 
+    public Cell(int x, int y, boolean alive){
+        this.x = x;
+        this.y = y;
+        this.alive = alive;
+    }
+
     public void draw(PApplet pApplet){
         if (alive){
             pApplet.fill(0);
@@ -56,11 +62,19 @@ public class Cell {
         }
     }
 
-    public void changeState(){
-        alive = !alive;
+    public void revive(){
+        alive = true;
+    }
+
+    public void kill(){
+        alive = false;
     }
 
     public boolean isAlive(){
         return alive;
+    }
+
+    public Cell getCopy() {
+        return new Cell(x, y, alive);
     }
 }

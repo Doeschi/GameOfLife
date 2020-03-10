@@ -4,8 +4,8 @@ import java.util.Random;
 
 public class Main extends PApplet {
 
-    public static int windowWidth = 800;
-    public static int windowHeight = 800;
+    public static int windowWidth = 900;
+    public static int windowHeight = 900;
     public static int cellSize = 20;
 
     private Cell[][] currentGen;
@@ -19,7 +19,7 @@ public class Main extends PApplet {
     @Override
     public void setup() {
         frameRate(30);
-        if (cellSize == 1){
+        if (cellSize == 1) {
             noStroke();
         }
         prepareFirstGen();
@@ -28,44 +28,83 @@ public class Main extends PApplet {
 
     @Override
     public void draw() {
-        prepareNextGen();
+        if (looping){
+            prepareNextGen();
+        }
         drawCells();
     }
 
     @Override
     public void keyPressed() {
-        if (key == ' '){
-            prepareNextGen();
-            drawCells();
-            redraw();
-        } else if(key == 'p' || key == 'P'){
-            if (looping){
+        if (key == 'p' || key == 'P') {
+            if (looping) {
                 noLoop();
-            } else{
+            } else {
                 loop();
+            }
+        }
+        if (!looping){
+            switch (key){
+                case ' ':
+                    prepareNextGen();
+                    redraw();
+                    break;
+
+                case 'c':
+                case 'C':
+                    killAll();
+                    redraw();
+                    break;
+
             }
         }
     }
 
-    private void prepareFirstGen(){
+    @Override
+    public void mousePressed() {
+        if (!looping){
+            Cell pressedCell = getPressedCell(mouseX, mouseY);
+            if (mouseButton == LEFT){
+                pressedCell.revive();
+            } else if (mouseButton == RIGHT){
+                pressedCell.kill();
+            }
+            redraw();
+        }
+    }
+
+    @Override
+    public void mouseDragged() {
+        if (!looping){
+            Cell pressedCell = getPressedCell(mouseX, mouseY);
+            if (mouseButton == LEFT){
+                pressedCell.revive();
+            } else if (mouseButton == RIGHT){
+                pressedCell.kill();
+            }
+            redraw();
+        }
+    }
+
+    private void prepareFirstGen() {
         Random random = new Random();
         int randomInt;
 
         currentGen = new Cell[windowHeight / cellSize][windowWidth / cellSize];
 
-        for(int y = 0; y < windowHeight / cellSize; y++){
-            for(int x = 0; x < windowWidth / cellSize; x++){
+        for (int y = 0; y < windowHeight / cellSize; y++) {
+            for (int x = 0; x < windowWidth / cellSize; x++) {
                 currentGen[y][x] = new Cell(x * cellSize, y * cellSize);
                 randomInt = random.nextInt(5);
-                if (randomInt < 2){
-                    currentGen[y][x].changeState();
+                if (randomInt < 2) {
+                    currentGen[y][x].revive();
                 }
             }
         }
     }
 
-    private void prepareNextGen(){
-        nextGen = currentGen.clone();
+    private void prepareNextGen() {
+        nextGen = getDeepCopy(currentGen);
         for (Cell[] cellRow : nextGen) {
             for (Cell cell : cellRow) {
                 cell.prepareNextGen(currentGen);
@@ -74,12 +113,37 @@ public class Main extends PApplet {
         currentGen = nextGen;
     }
 
-    private void drawCells(){
+    private Cell[][] getDeepCopy(Cell[][] currentGen){
+        Cell[][] copy = new Cell[windowHeight / cellSize][windowWidth / cellSize];
+        for (int i = 0; i < copy.length; i++) {
+            for (int j = 0; j < copy[i].length; j++) {
+                Cell currentCell = currentGen[i][j];
+                copy[i][j] = currentCell.getCopy();
+            }
+        }
+        return copy;
+    }
+
+    private void drawCells() {
         for (Cell[] cellRow : currentGen) {
             for (Cell cell : cellRow) {
                 cell.draw(this);
             }
         }
+    }
+
+    private void killAll(){
+        for (Cell[] cellRow : currentGen) {
+            for (Cell cell : cellRow) {
+                if (cell.isAlive()){
+                    cell.kill();
+                }
+            }
+        }
+    }
+
+    private Cell getPressedCell(int x, int y){
+        return currentGen[y / cellSize][x / cellSize];
     }
 
     public static void main(String[] args) {
