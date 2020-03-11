@@ -12,8 +12,7 @@ import java.util.Random;
 public class Main extends PApplet {
 
     public static final int cellSize = 5;
-    public static final int buttonWidth = 150;
-    public static final int labelWidth = 150;
+    public static final int componentWidth = 150;
     public static final int componentHeight = 50;
 
     public static final int windowWidth = 900;
@@ -43,7 +42,7 @@ public class Main extends PApplet {
 
     @Override
     public void setup() {
-        frameRate(120);
+        frameRate(30);
         textSize(14);
         if (cellSize == 1) {
             noStroke();
@@ -134,7 +133,6 @@ public class Main extends PApplet {
             } else if (mouseButton == RIGHT){
                 pressedCell.kill();
             }
-            redraw();
         }
     }
 
@@ -232,7 +230,7 @@ public class Main extends PApplet {
         int xOffset = 0;
         int yOffset = sketchHeight;
 
-        PButton button = new PButton(xOffset, yOffset, buttonWidth, componentHeight, "Start / Stop") {
+        PButton button = new PButton(xOffset, yOffset, componentWidth, componentHeight, "Start / Stop") {
             @Override
             public void buttonEvent() {
                 if (running) {
@@ -245,9 +243,9 @@ public class Main extends PApplet {
             }
         };
         buttons.add(button);
-        xOffset += buttonWidth;
+        xOffset += componentWidth;
 
-        button = new PButton(xOffset, yOffset, buttonWidth, componentHeight, "Clear") {
+        button = new PButton(xOffset, yOffset, componentWidth, componentHeight, "Clear") {
             @Override
             public void buttonEvent() {
                 killAll();
@@ -255,9 +253,9 @@ public class Main extends PApplet {
         };
         buttons.add(button);
         buttonsToDisable.add(button);
-        xOffset += buttonWidth;
+        xOffset += componentWidth;
 
-        button = new PButton(xOffset, yOffset, buttonWidth, componentHeight, "Random Generation") {
+        button = new PButton(xOffset, yOffset, componentWidth, componentHeight, "Random Generation") {
             @Override
             public void buttonEvent() {
                 prepareFirstGen();
@@ -265,9 +263,9 @@ public class Main extends PApplet {
         };
         buttons.add(button);
         buttonsToDisable.add(button);
-        xOffset += buttonWidth;
+        xOffset += componentWidth;
 
-        button = new PButton(xOffset, yOffset, buttonWidth, componentHeight, "Previous Generation") {
+        button = new PButton(xOffset, yOffset, componentWidth, componentHeight, "Previous Generation") {
             @Override
             public void buttonEvent() {
                 drawPreviousGen();
@@ -275,9 +273,9 @@ public class Main extends PApplet {
         };
         buttons.add(button);
         buttonsToDisable.add(button);
-        xOffset += buttonWidth;
+        xOffset += componentWidth;
 
-        button = new PButton(xOffset, yOffset, buttonWidth, componentHeight, "Next Generation") {
+        button = new PButton(xOffset, yOffset, componentWidth, componentHeight, "Next Generation") {
             @Override
             public void buttonEvent() {
                 prepareNextGen();
@@ -285,9 +283,9 @@ public class Main extends PApplet {
         };
         buttons.add(button);
         buttonsToDisable.add(button);
-        xOffset += buttonWidth;
+        xOffset += componentWidth;
 
-        button = new PButton(xOffset, yOffset, buttonWidth, componentHeight, "Safe Frame") {
+        button = new PButton(xOffset, yOffset, componentWidth, componentHeight, "Safe Frame") {
             @Override
             public void buttonEvent() {
                 save("/src/images/save_image" + System.currentTimeMillis() + ".png");
@@ -298,11 +296,11 @@ public class Main extends PApplet {
         xOffset = 0;
         yOffset += componentHeight;
 
-        cellCounter = new PLabel(xOffset, yOffset, labelWidth, componentHeight, "Zellen");
-        xOffset += labelWidth;
+        cellCounter = new PLabel(xOffset, yOffset, componentWidth, componentHeight, "Zellen");
+        xOffset += componentWidth;
 
-        fps = new PLabel(xOffset, yOffset, labelWidth, componentHeight, "FPS");
-        xOffset += labelWidth;
+        fps = new PLabel(xOffset, yOffset, componentWidth, componentHeight, "FPS");
+        xOffset += componentWidth;
 
         slider = new PSlider(xOffset, yOffset + componentHeight / 2, 100);
     }
