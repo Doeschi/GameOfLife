@@ -1,24 +1,21 @@
+package components;
+import main.Main;
 import processing.core.PApplet;
 
-import java.util.concurrent.ConcurrentNavigableMap;
-
-public class Cell {
-    private int x;
-    private int y;
+public class Cell extends BaseComponent {
     private boolean alive;
 
     public Cell(int x, int y){
-        this.x = x;
-        this.y = y;
+        super(x, y);
         alive = false;
     }
 
     public Cell(int x, int y, boolean alive){
-        this.x = x;
-        this.y = y;
+        super(x, y);
         this.alive = alive;
     }
 
+    @Override
     public void draw(PApplet pApplet){
         if (alive){
             pApplet.fill(0);
