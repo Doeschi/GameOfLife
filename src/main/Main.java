@@ -43,14 +43,14 @@ public class Main extends PApplet {
 
     @Override
     public void setup() {
-        frameRate(30);
+        frameRate(120);
         textSize(14);
         if (cellSize == 1) {
             noStroke();
         }
         initComponents();
         prepareFirstGen();
-        cellCounter.setText("Zellen: " + (sketchHeight / cellSize * sketchWidth / cellSize));
+        cellCounter.setText("Cells: " + (sketchHeight / cellSize * sketchWidth / cellSize) + "\nLiving: " + (countLivingCells()));
         running = false;
     }
 
@@ -180,6 +180,8 @@ public class Main extends PApplet {
     }
 
     private void drawWindow() {
+        updateLabels();
+
         for (Cell[] cellRow : currentGen) {
             for (Cell cell : cellRow) {
                 cell.draw(this);
@@ -190,12 +192,16 @@ public class Main extends PApplet {
             button.draw(this);
         }
 
-        float currentFps = Math.round(frameRate * 1000);
-        fps.setText("FPS: " + (currentFps / 1000));
-
         cellCounter.draw(this);
         fps.draw(this);
         slider.draw(this);
+    }
+
+    private void updateLabels(){
+        float currentFps = Math.round(frameRate * 1000);
+        fps.setText("FPS: " + (currentFps / 1000));
+
+        cellCounter.setText("Cells: " + (sketchHeight / cellSize * sketchWidth / cellSize) + "\nLiving: " + (countLivingCells()));
     }
 
     private void killAll(){
@@ -311,6 +317,20 @@ public class Main extends PApplet {
         for (PButton button : buttonsToDisable) {
             button.setEnabled(true);
         }
+    }
+
+    private int countLivingCells(){
+        int livingCells = 0;
+
+        for (Cell[] cellRow : currentGen) {
+            for (Cell cell : cellRow) {
+                if (cell.isAlive()) {
+                    livingCells++;
+                }
+            }
+        }
+
+        return livingCells;
     }
 
     public static void main(String[] args) {
