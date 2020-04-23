@@ -4,6 +4,7 @@ import processing.core.PApplet;
 import processing.core.PConstants;
 
 public abstract class PButton extends BaseTextComponent{
+
     private boolean clicked;
     private boolean enabled;
 

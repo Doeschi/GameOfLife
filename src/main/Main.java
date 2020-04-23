@@ -1,17 +1,15 @@
 package main;
 
-import components.Cell;
-import components.PButton;
-import components.PLabel;
-import components.PSlider;
+import components.*;
 import processing.core.PApplet;
+import processing.event.KeyEvent;
 
 import java.util.ArrayList;
 import java.util.Random;
 
 public class Main extends PApplet {
 
-    public static final int cellSize = 5;
+    public static final int cellSize = 10;
     public static final int componentWidth = 150;
     public static final int componentHeight = 50;
 
@@ -23,7 +21,7 @@ public class Main extends PApplet {
     public static final int firstGenProbability = 60;
 
     private Cell[][] currentGen;
-    private Cell[][] nextGen;
+    private ArrayList<Cell[][]> previousGens;
     private Cell[][] previousGen;
 
     private ArrayList<PButton> buttons;
@@ -32,6 +30,7 @@ public class Main extends PApplet {
     private PLabel cellCounter;
     private PLabel fps;
     private PSlider slider;
+    private PTextbox textbox;
 
     private boolean running;
 
@@ -51,12 +50,13 @@ public class Main extends PApplet {
         prepareFirstGen();
         cellCounter.setText("Cells: " + (sketchHeight / cellSize * sketchWidth / cellSize) + "\nLiving: " + (countLivingCells()));
         running = false;
+        previousGens = new ArrayList<>();
     }
 
     @Override
     public void draw() {
         background(255);
-        if (running){
+        if (running  && frameCount % 15 == 0){
             prepareNextGen();
         }
         drawWindow();
@@ -107,6 +107,8 @@ public class Main extends PApplet {
         for (PButton button : buttons) {
             button.mousePressed(mouseX, mouseY);
         }
+
+        textbox.keyPressed(mouseX, mouseY);
     }
 
     @Override
@@ -156,13 +158,15 @@ public class Main extends PApplet {
     }
 
     private void prepareNextGen() {
-        nextGen = getDeepCopy(currentGen);
+        Cell[][] nextGen = getDeepCopy(currentGen);
         previousGen = getDeepCopy(currentGen);
+        previousGens.add(previousGen);
         for (Cell[] cellRow : nextGen) {
             for (Cell cell : cellRow) {
                 cell.prepareNextGen(currentGen);
             }
         }
+
         currentGen = nextGen;
     }
 
@@ -193,6 +197,7 @@ public class Main extends PApplet {
         cellCounter.draw(this);
         fps.draw(this);
         slider.draw(this);
+        textbox.draw(this);
     }
 
     private void updateLabels(){
@@ -213,7 +218,11 @@ public class Main extends PApplet {
     }
 
     private void drawPreviousGen(){
-        currentGen = previousGen;
+        if (previousGens.size() != 0) {
+            currentGen = previousGens.get(previousGens.size() - 1);
+            previousGens.remove(previousGens.size() - 1);
+        }
+        //        currentGen = previousGen;
     }
 
     private Cell getPressedCell(int x, int y){
@@ -249,6 +258,7 @@ public class Main extends PApplet {
             @Override
             public void buttonEvent() {
                 killAll();
+                previousGens = new ArrayList<>();
             }
         };
         buttons.add(button);
@@ -291,6 +301,7 @@ public class Main extends PApplet {
                 save("/src/images/save_image" + System.currentTimeMillis() + ".png");
             }
         };
+
         buttons.add(button);
         buttonsToDisable.add(button);
         xOffset = 0;
@@ -303,6 +314,10 @@ public class Main extends PApplet {
         xOffset += componentWidth;
 
         slider = new PSlider(xOffset, yOffset + componentHeight / 2, 100);
+        xOffset += 100;
+
+        textbox = new PTextbox(xOffset, yOffset, 50, componentHeight);
+        xOffset += 50;
     }
 
     private void disableButtons(){
