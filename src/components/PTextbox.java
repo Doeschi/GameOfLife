@@ -3,12 +3,13 @@ package components;
 import processing.core.PApplet;
 import processing.core.PConstants;
 
-public class PTextbox extends BaseComponent{
+public class PTextbox extends BaseComponent {
 
     private int width;
     private int height;
     private String text;
     private boolean focus;
+    private boolean drawBlinky;
 
     public PTextbox(int x, int y, int width, int height) {
         super(x, y);
@@ -16,6 +17,7 @@ public class PTextbox extends BaseComponent{
         this.height = height;
         text = "";
         focus = false;
+        drawBlinky = false;
     }
 
     @Override
@@ -25,26 +27,49 @@ public class PTextbox extends BaseComponent{
 
         pApplet.fill(0);
         pApplet.textAlign(PConstants.CENTER, PConstants.CENTER);
-        pApplet.text(text, x + width / 2, y + height / 2);
+
+        if(focus && drawBlinky){
+            pApplet.text(text + "_", x + width / 2, y + height / 2);
+        } else {
+            pApplet.text(text, x + width / 2, y + height / 2);
+        }
+
+        if (pApplet.frameCount % 15 == 0){
+            drawBlinky = !drawBlinky;
+        }
     }
 
-    public void addChar(char c){
-        text += c;
+    public void addChar(char c) {
+        if(Character.isDigit(c)){
+            text += c;
+        }
     }
 
-    public void removeChar(){
-        text = text.substring(0, text.length() - 2);
+    public void removeChar() {
+        if (!text.equals("")) {
+            text = text.substring(0, text.length() - 1);
+        }
     }
 
-    public boolean isFocused(){
+    public boolean isFocused() {
         return focus;
     }
 
-    public void keyPressed(int mouseX, int mouseY){
-        if(mouseX > x && mouseX < x + width && mouseY > y && mouseY < y + height){
+    public void keyPressed(int mouseX, int mouseY) {
+        if (mouseX > x && mouseX < x + width && mouseY > y && mouseY < y + height) {
             focus = true;
-        }else {
+            drawBlinky = true;
+        } else {
             focus = false;
+            drawBlinky = false;
         }
+    }
+
+    public String getText(){
+        return text;
+    }
+
+    public void setText(String text){
+        this.text = text;
     }
 }

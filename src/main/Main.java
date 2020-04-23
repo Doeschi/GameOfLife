@@ -2,14 +2,13 @@ package main;
 
 import components.*;
 import processing.core.PApplet;
-import processing.event.KeyEvent;
 
 import java.util.ArrayList;
 import java.util.Random;
 
 public class Main extends PApplet {
 
-    public static final int cellSize = 10;
+    public static final int cellSize = 5;
     public static final int componentWidth = 150;
     public static final int componentHeight = 50;
 
@@ -51,12 +50,13 @@ public class Main extends PApplet {
         cellCounter.setText("Cells: " + (sketchHeight / cellSize * sketchWidth / cellSize) + "\nLiving: " + (countLivingCells()));
         running = false;
         previousGens = new ArrayList<>();
+        textbox.setText("1");
     }
 
     @Override
     public void draw() {
         background(255);
-        if (running  && frameCount % 15 == 0){
+        if (running  && frameCount % ((int)(frameRate / 2)) == 0){
             prepareNextGen();
         }
         drawWindow();
@@ -93,6 +93,14 @@ public class Main extends PApplet {
                 case 'Z':
                     drawPreviousGen();
                     break;
+            }
+        }
+
+        if(textbox.isFocused()){
+            if (keyCode == BACKSPACE){
+                textbox.removeChar();
+            } else{
+                textbox.addChar(key);
             }
         }
     }
@@ -159,8 +167,7 @@ public class Main extends PApplet {
 
     private void prepareNextGen() {
         Cell[][] nextGen = getDeepCopy(currentGen);
-        previousGen = getDeepCopy(currentGen);
-        previousGens.add(previousGen);
+        previousGens.add(currentGen);
         for (Cell[] cellRow : nextGen) {
             for (Cell cell : cellRow) {
                 cell.prepareNextGen(currentGen);
@@ -219,10 +226,18 @@ public class Main extends PApplet {
 
     private void drawPreviousGen(){
         if (previousGens.size() != 0) {
-            currentGen = previousGens.get(previousGens.size() - 1);
-            previousGens.remove(previousGens.size() - 1);
+            if(!textbox.getText().equals("")) {
+                if (Integer.parseInt(textbox.getText()) > previousGens.size()){
+                    currentGen = previousGens.get(0);
+                    previousGens = new ArrayList<>();
+                } else {
+                    currentGen = previousGens.get(previousGens.size() - Integer.parseInt(textbox.getText()));
+                    for (int i = 0; i < Integer.parseInt(textbox.getText()); i++) {
+                        previousGens.remove(previousGens.size() - 1);
+                    }
+                }
+            }
         }
-        //        currentGen = previousGen;
     }
 
     private Cell getPressedCell(int x, int y){
@@ -288,7 +303,11 @@ public class Main extends PApplet {
         button = new PButton(xOffset, yOffset, componentWidth, componentHeight, "Next Generation") {
             @Override
             public void buttonEvent() {
-                prepareNextGen();
+                if (!textbox.getText().equals("")) {
+                    for (int i = 0; i < Integer.parseInt(textbox.getText()); i++) {
+                        prepareNextGen();
+                    }
+                }
             }
         };
         buttons.add(button);
