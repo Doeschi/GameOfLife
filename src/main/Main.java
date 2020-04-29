@@ -27,9 +27,6 @@ public class Main extends PApplet {
     // Arrayliste mit allen vergangen Genertationen
     private ArrayList<Cell[][]> previousGens;
 
-    // Liste aller Buttons
-    private ArrayList<PButton> buttons;
-
     private PButton buttonStartStop;
     private PButton buttonClear;
     private PButton buttonRandom;
@@ -111,13 +108,18 @@ public class Main extends PApplet {
             processClickedCell();
         }
 
-        // Teilt allen Buttons mit, dass die Maus gedrückt wurde
-        for (PButton button : buttons) {
-            button.mousePressed(mouseX, mouseY);
-        }
+        if (mouseButton == LEFT) {
+            // Teilt den Buttons mit, das die Linke Maus gedrückt wurde
+            buttonStartStop.mousePressed(mouseX, mouseY);
+            buttonClear.mousePressed(mouseX, mouseY);
+            buttonRandom.mousePressed(mouseX, mouseY);
+            buttonPrevious.mousePressed(mouseX, mouseY);
+            buttonNext.mousePressed(mouseX, mouseY);
+            buttonSave.mousePressed(mouseX, mouseY);
 
-        // Teil der Textbox mit, das die Maus gedrückt wurde
-        textbox.mousePressed(mouseX, mouseY);
+            // Teil der Textbox mit, das die Maus gedrückt wurde
+            textbox.mousePressed(mouseX, mouseY);
+        }
     }
 
     /**
@@ -135,9 +137,12 @@ public class Main extends PApplet {
      */
     @Override
     public void mouseReleased() {
-        for (PButton button : buttons) {
-            button.mouseReleased();
-        }
+        buttonStartStop.mouseReleased();
+        buttonClear.mouseReleased();
+        buttonRandom.mouseReleased();
+        buttonPrevious.mouseReleased();
+        buttonNext.mouseReleased();
+        buttonSave.mouseReleased();
     }
 
     /**
@@ -244,10 +249,13 @@ public class Main extends PApplet {
             }
         }
 
-        // Zeichnen der Buttons
-        for (PButton button : buttons) {
-            button.draw(this);
-        }
+        // Zeichnen der Button
+        buttonStartStop.draw(this);
+        buttonClear.draw(this);
+        buttonRandom.draw(this);
+        buttonPrevious.draw(this);
+        buttonNext.draw(this);
+        buttonSave.draw(this);
 
         // Zeichnen der Labels
         cellCounter.draw(this);
@@ -327,9 +335,6 @@ public class Main extends PApplet {
      * Zudem wird hier das ButtonEvent der verschiedenen Buttons ausprogrammiert.
      */
     private void initComponents() {
-        // Button Array initialisieren
-        buttons = new ArrayList<>();
-
         // Diese Variablen enthalten die Position der nächsten Komponente
         int xOffset = 0;
         int yOffset = sketchHeight;
@@ -349,7 +354,6 @@ public class Main extends PApplet {
                 }
             }
         };
-        buttons.add(buttonStartStop);
         xOffset += componentWidth;
 
         // Clear Button
@@ -362,7 +366,6 @@ public class Main extends PApplet {
                 previousGens.clear();
             }
         };
-        buttons.add(buttonClear);
         xOffset += componentWidth;
 
         // Random Gen Button
@@ -373,7 +376,6 @@ public class Main extends PApplet {
                 prepareFirstGen();
             }
         };
-        buttons.add(buttonRandom);
         xOffset += componentWidth;
 
         // Save Button
@@ -384,7 +386,6 @@ public class Main extends PApplet {
                 save("/src/images/save_image" + System.currentTimeMillis() + ".png");
             }
         };
-        buttons.add(buttonSave);
         xOffset += componentWidth;
 
         // Label CellCounter
@@ -405,7 +406,6 @@ public class Main extends PApplet {
                 setPreviousGen();
             }
         };
-        buttons.add(buttonPrevious);
         xOffset += componentWidth;
 
         // Next Gen Button
@@ -421,7 +421,6 @@ public class Main extends PApplet {
                 }
             }
         };
-        buttons.add(buttonNext);
         xOffset += componentWidth;
 
         // Textbox; Dient der Eingabe einer Zahl; die dort eingegebene Zahl wird zum springen zwischen Generationen genutzt
