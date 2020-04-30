@@ -109,6 +109,14 @@ public abstract class PButton extends BaseTextComponent {
     }
 
     /**
+     * Setzt den Text des Buttons.
+     * @param text Text der angezeigt werden soll
+     */
+    public void setText(String text){
+        this.text = text;
+    }
+
+    /**
      * Diese Methode erst beim Instanzieren eines Buttons ausprogrammiert.
      * Diese Methode wird ausgelöst, wenn die Maus released wurde und der Button
      * zuvor geklickt wurde.

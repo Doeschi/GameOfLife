@@ -76,7 +76,8 @@ public class PTextbox extends BaseTextComponent {
     }
 
     /**
-     * Löscht das zuletzt hinzugefügte Zeichen
+     * Löscht das zuletzt hinzugefügte Zeichen.
+     * Wenn der Text leer sein sollte, wird die Zahl 1 als Text gesetzt.
      */
     public void removeChar() {
         if (!text.equals("")) {

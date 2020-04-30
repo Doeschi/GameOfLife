@@ -65,7 +65,7 @@ public class Main extends PApplet {
         }
         prepareFirstGen();
         initComponents();
-        updateLabels();
+        updateUI();
         running = false;
     }
 
@@ -239,7 +239,7 @@ public class Main extends PApplet {
      */
     private void drawWindow() {
         // Updated den Text der Labels
-        updateLabels();
+        updateUI();
 
         // Loop durch alle Zellen des Spielfeldes
         for (Cell[] cellRow : currentGen) {
@@ -264,15 +264,26 @@ public class Main extends PApplet {
     }
 
     /**
-     * Diese Methode updated den Text der Labels.
+     * Diese Methode updated den Text des UI
      */
-    private void updateLabels() {
+    private void updateUI() {
         // Framerate auf 3 Stellen genau runden
         float currentFps = Math.round(frameRate * 1000);
         info.setText("FPS: " + (currentFps / 1000) + "\nGen: " + previousGens.size());
 
         // sketchHeight/cellSize ergibt die Anzahl Zeilen, sketchWidth/cellSize ergibt die Anzahl Spalten
         cellCounter.setText("Cells: " + (sketchHeight / cellSize * sketchWidth / cellSize) + "\nLiving: " + (countLivingCells()));
+
+        // Wenn kein Text in der Textbox steht, wird "0" geschrieben
+        // Ansonsten wird die Zahl aus der Textbox verwendet
+        if (textbox.getText().equals("")){
+            buttonPrevious.setText("Jump 0 Generations");
+            buttonNext.setText("Jump 0 Generations");
+        } else{
+            buttonPrevious.setText("Jump -" + textbox.getText() + " Generations");
+            buttonNext.setText("Jump " + textbox.getText() + " Generations");
+        }
+
     }
 
     /**
@@ -398,7 +409,7 @@ public class Main extends PApplet {
         yOffset += componentHeight;
 
         // Previous Gen Button
-        buttonPrevious = new PButton(xOffset, yOffset, componentWidth, componentHeight, "Previous Generation") {
+        buttonPrevious = new PButton(xOffset, yOffset, componentWidth, componentHeight, "") {
             @Override
             public void buttonEvent() {
                 // Setzt eine vorherige Generation als aktuelle
@@ -409,7 +420,7 @@ public class Main extends PApplet {
         xOffset += componentWidth;
 
         // Next Gen Button
-        buttonNext = new PButton(xOffset, yOffset, componentWidth, componentHeight, "Next Generation") {
+        buttonNext = new PButton(xOffset, yOffset, componentWidth, componentHeight, "") {
             @Override
             public void buttonEvent() {
                 // Die Anzahl Generationen wird aus der Textbox ausgelesen
