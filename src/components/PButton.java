@@ -100,7 +100,7 @@ public abstract class PButton extends BaseTextComponent {
     }
 
     /**
-     * Setzt die Variable enabled auf den als Parameter mitgegebenen Wert
+     * Setzt die Variable enabled auf den als Parameter mitgegebenen Wert. (aktivieren/deaktivieren)
      *
      * @param enabled Boolean, ob der Knopf aktiviert oder deaktiviert ist.
      */

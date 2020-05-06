@@ -12,6 +12,7 @@ public class PTextbox extends BaseTextComponent {
      * Boolean, ob die Textbox fokusiert ist oder nicht
      */
     private boolean focus;
+    private boolean enable;
 
     /**
      * Boolean, ob ein '_' gezeichnet werden soll
@@ -32,6 +33,7 @@ public class PTextbox extends BaseTextComponent {
         super(x, y, width, height, text);
         focus = false;
         drawBlinky = false;
+        enable = true;
     }
 
     /**
@@ -44,11 +46,15 @@ public class PTextbox extends BaseTextComponent {
      */
     @Override
     public void draw(PApplet pApplet) {
-        // Setz die Füllfarbe
+        // Setz die Füllfarbe des Hintergrundes
         pApplet.fill(255);
         pApplet.rect(x, y, width, height);
-        // Setz die Füllfarbe
-        pApplet.fill(0);
+        // Setz die Füllfarbe des Textes
+        if (enable) {
+            pApplet.fill(0);
+        } else {
+            pApplet.fill(200);
+        }
         // Setzt das Verhalten der Methode pApplet.text()
         pApplet.textAlign(PConstants.CENTER, PConstants.CENTER);
 
@@ -122,5 +128,18 @@ public class PTextbox extends BaseTextComponent {
      */
     public void setText(String text) {
         this.text = text;
+    }
+
+    /**
+     * Setzt die Variable enabled auf den als Parameter mitgegebenen Wert. (aktivieren/deaktivieren)
+     *
+     * @param enable Boolean, ob der Knopf aktiviert oder deaktiviert ist.
+     */
+    public void setEnable(boolean enable){
+        this.enable = enable;
+
+        if (!enable){
+            focus = false;
+        }
     }
 }

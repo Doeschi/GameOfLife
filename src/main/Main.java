@@ -8,7 +8,6 @@ import java.util.Random;
 
 public class Main extends PApplet {
 
-
     public static final int cellSize = 5;
     public static final int componentWidth = 150;
     public static final int componentHeight = 50;
@@ -20,7 +19,7 @@ public class Main extends PApplet {
     // Höhe des GoL Feldes
     public static final int sketchHeight = windowHeight - (2 * componentHeight);
 
-    // Prozentsatz, wie viel bei Beginn leben sollen
+    // Prozentsatz, wie viele Zellen zu Beginn leben sollen
     public static final int firstGenProbability = 60;
 
     private Cell[][] currentGen;
@@ -34,12 +33,17 @@ public class Main extends PApplet {
     private PButton buttonNext;
     private PButton buttonSave;
 
-    private PLabel cellCounter;
-    private PLabel info;
-    private PTextbox textbox;
+    private PLabel lblCellCounter;
+    private PLabel lblInfo;
+    private PLabel lblGensPerSecond;
+    private PLabel lblGenerationJumps;
+
+    private PTextbox txtGenerations;
+    private PTextbox txtGensPerSecond;
 
     // Boolean, ob das Spiel läuft oder nicht
     private boolean running;
+    private int timeOfLastGen;
 
     /**
      * Diese Methode wird beim Programmstart als erstes aufgerufen.
@@ -51,9 +55,9 @@ public class Main extends PApplet {
     }
 
     /**
-     * Diese Methode wird beim Programmstart als zweites aufgerufen
-     * Es werden Attribute auf die gewünschten Werte gesetzt, die erste
-     * Generation des GoL vorbereitet und alle GUI Komponenten initialisiert.
+     * Diese Methode wird beim Programmstart als zweites aufgerufen.
+     * Die Framerate und die Textgrösse wird festgelegt. Danach wird die erste
+     * Generation des GoL vorbereitet und alle GUI Komponenten initialisiert und beschriftet.
      */
     @Override
     public void setup() {
@@ -72,35 +76,48 @@ public class Main extends PApplet {
     /**
      * Diese Mehthode wird einmal pro Frame aufgerufen (bei 30 FPS, 30 mal in der Sekunde)
      * Das aktuelle Fenster wird mit background() komplett übermalt. Wenn das GoL läuft, wird alle
-     * 15 Frames (ca. alle 0.5 Sekunden) eine neue Generation vorbereitet.
-     * Danach wird das Komplette GoL Spielfeld sowie die GUI Komponenten gezeichnet
+     * 0.5 Sekunden eine neue Generation vorbereitet.
+     * Danach wird das Komplette GoL Spielfeld, sowie die GUI Komponenten gezeichnet.
      */
     @Override
     public void draw() {
+        // Komplettes Fenster Weiss übermalen
         background(255);
-        if (running && frameCount % ((int) (frameRate / 2)) == 0) {
+
+        // Wenn das Spiel läuft und mindestens 0.5s seit der letzten Generation vergangen sind,
+        // wird eine neue Generation vorbereitet.
+        if (running && millis() - timeOfLastGen > 1000 / Integer.parseInt(txtGensPerSecond.getText())) {
             prepareNextGen();
         }
+        // Spielfeld und GUI zeichnen
         drawWindow();
     }
 
     /**
      * Diese Methode wird aufgerufen, wenn eine Taste auf der Tastatur gedrückt wird.
-     * Ist das Textfeld fokusiert, wird die gedrückte Taste verarbeitet.
+     * Ist eines der Textfelder fokusiert, wird die gedrückte Taste verarbeitet.
      */
     @Override
     public void keyPressed() {
-        if (textbox.isFocused()) {
+        if (txtGenerations.isFocused()) {
             if (keyCode == BACKSPACE) {
-                textbox.removeChar();
+                txtGenerations.removeChar();
             } else {
-                textbox.addChar(key);
+                txtGenerations.addChar(key);
+            }
+        } else if (txtGensPerSecond.isFocused()){
+            if (keyCode == BACKSPACE){
+                txtGensPerSecond.removeChar();
+            } else{
+                txtGensPerSecond.addChar(key);
             }
         }
     }
 
     /**
      * Diese Methode wird aufgerufen, wenn eine Maustaste gedrückt wurde.
+     * Wenn das Spiel nicht läuft, wird die gedrückte Zelle verarbeitet (falls auf eine Zelle gedrückt wurde)
+     * Wird die Linke Maustaste gedrückt, wird dies den Buttons und Textfeldern mitgeteilt.
      */
     @Override
     public void mousePressed() {
@@ -118,12 +135,14 @@ public class Main extends PApplet {
             buttonSave.mousePressed(mouseX, mouseY);
 
             // Teil der Textbox mit, das die Maus gedrückt wurde
-            textbox.mousePressed(mouseX, mouseY);
+            txtGenerations.mousePressed(mouseX, mouseY);
+            txtGensPerSecond.mousePressed(mouseX, mouseY);
         }
     }
 
     /**
      * Diese Methode wird aufgerufen, wenn eine Maustaste gedrückt ist und die Maus bewegt wird.
+     * Wenn das Spiel nicht läuft, wird die geklickte Zelle verarbeitet. (Falls sich die Maus über einer Zelle befindet)
      */
     @Override
     public void mouseDragged() {
@@ -134,6 +153,7 @@ public class Main extends PApplet {
 
     /**
      * Diese Methode wird aufgerufen, wenn eine Maustaste losgelassen wird.
+     * Allen Buttons wird mitgeteilt, dass die Maus nicht mehr gedrückt wird.
      */
     @Override
     public void mouseReleased() {
@@ -147,9 +167,9 @@ public class Main extends PApplet {
 
     /**
      * Diese Methode holt sich die aktuell gedrückte Zelle.
-     * Ist diese Null, wurde keine gedrückt. Ansonsten wird die Zelle
-     * belebt, wenn die linke Maustaste gedrückt wird und getötet, wenn
-     * die rechte Maustaste gedrückt wird.
+     * Ist diese Null, wurde keine Zelle gedrückt.
+     * Ansonsten wird die Zelle belebt, wenn die linke Maustaste gedrückt
+     * wird und getötet, wenn die rechte Maustaste gedrückt wird.
      */
     private void processClickedCell() {
         Cell pressedCell = getCell();
@@ -191,6 +211,7 @@ public class Main extends PApplet {
 
         // Zwischengespeicherte Generation löschen
         previousGens.clear();
+        timeOfLastGen = millis();
     }
 
     /**
@@ -203,7 +224,7 @@ public class Main extends PApplet {
         // Die aktuelle Generation wird gespeichert, damit bei Bedarf auf diese Generation zurück gegangen werden kann
         previousGens.add(currentGen);
 
-        // Loop durch jede Zelle des Spielfeldes der nächsten Generation
+        // Loop durch jede Zelle des Spielfeldes der nächsten Generation und bereitet die Zellen vor
         for (Cell[] cellRow : nextGen) {
             for (Cell cell : cellRow) {
                 cell.prepareNextGen(currentGen);
@@ -212,11 +233,13 @@ public class Main extends PApplet {
 
         // Die vorbereitete Generation wird als aktuelle Generation gesetzt
         currentGen = nextGen;
+        timeOfLastGen = millis();
     }
 
     /**
      * Erstellt eine Kopie des Spielfeldes, inklusiver einer Kopie der Zellen.
-     * Dies ist nötig, damit die nächste Generation auf basis der aktuellen Generation verändert werden kann.
+     * Dies ist nötig, weil der Zustand einer Zelle in der nächsten Generation von
+     * den Zuständen seiner Nachbarzellen in der aktuellen Generation abhängt.
      *
      * @return Gibt eine tiefe Kopie des Spielfeldes zurück (Kopie des Feldes und der Zellen)
      */
@@ -258,32 +281,38 @@ public class Main extends PApplet {
         buttonSave.draw(this);
 
         // Zeichnen der Labels
-        cellCounter.draw(this);
-        info.draw(this);
-        textbox.draw(this);
+        lblCellCounter.draw(this);
+        lblInfo.draw(this);
+        lblGensPerSecond.draw(this);
+        lblGenerationJumps.draw(this);
+
+        txtGenerations.draw(this);
+        txtGensPerSecond.draw(this);
     }
 
     /**
-     * Diese Methode updated den Text des UI
+     * Diese Methode updated den Text der Labels und Buttons.
      */
     private void updateUI() {
         // Framerate auf 3 Stellen genau runden
         float currentFps = Math.round(frameRate * 1000);
-        info.setText("FPS: " + (currentFps / 1000) + "\nGen: " + previousGens.size());
+
+        // Neue FPS Zahl und Nummer der aktuellen Generation setzten.
+        lblInfo.setText("FPS: " + (currentFps / 1000) + "\nGen: " + previousGens.size());
 
         // sketchHeight/cellSize ergibt die Anzahl Zeilen, sketchWidth/cellSize ergibt die Anzahl Spalten
-        cellCounter.setText("Cells: " + (sketchHeight / cellSize * sketchWidth / cellSize) + "\nLiving: " + (countLivingCells()));
+        // Anzahl aller Zeller und Anzahl lebender Zellen setzen
+        lblCellCounter.setText("Cells: " + (sketchHeight / cellSize * sketchWidth / cellSize) + "\nLiving: " + (countLivingCells()));
 
         // Wenn kein Text in der Textbox steht, wird "0" geschrieben
         // Ansonsten wird die Zahl aus der Textbox verwendet
-        if (textbox.getText().equals("")){
-            buttonPrevious.setText("Jump 0 Generations");
-            buttonNext.setText("Jump 0 Generations");
+        if (txtGenerations.getText().equals("")){
+            buttonPrevious.setText("Previous 0");
+            buttonNext.setText("Skip 0");
         } else{
-            buttonPrevious.setText("Jump -" + textbox.getText() + " Generations");
-            buttonNext.setText("Jump " + textbox.getText() + " Generations");
+            buttonPrevious.setText("Previous " + txtGenerations.getText());
+            buttonNext.setText("Skip " + txtGenerations.getText());
         }
-
     }
 
     /**
@@ -302,23 +331,24 @@ public class Main extends PApplet {
     /**
      * Diese Methode setzt eine frühere Generation als die aktuelle.
      * Die Anzahl Generationen, die zurück gesprungen wird, wird aus dem Textfeld ausgelesen.
+     * Die Nummer der Generation entspricht ihrem Index im Array der vergangen Generationen.
      */
     private void setPreviousGen() {
         // Wenn überhaupt vorherige Generation existieren
         if (previousGens.size() != 0) {
-            // Wenn der Inhalt nicht leer ist
-            if (!textbox.getText().equals("")) {
-                // Wenn mehr Generationen zurück gesprungen werden soll, als überhaupt existieren, wird die erste Generation angezeigt
-                if (Integer.parseInt(textbox.getText()) > previousGens.size()) {
+            // Wenn die Anzahl Generation die gesprungen werden sollen, nicht leer ist
+            if (!txtGenerations.getText().equals("")) {
+                // Wenn mehr Generationen zurück gesprungen werden sollen, als überhaupt existieren, wird die erste Generation angezeigt
+                if (Integer.parseInt(txtGenerations.getText()) > previousGens.size()) {
                     // Erste Generation holen
                     currentGen = previousGens.get(0);
                     // Alle Zwischengespeicherten Generationen löschen
                     previousGens.clear();
                 } else {
                     // die gewünschte Generation holen
-                    currentGen = previousGens.get(previousGens.size() - Integer.parseInt(textbox.getText()));
+                    currentGen = previousGens.get(previousGens.size() - Integer.parseInt(txtGenerations.getText()));
                     // die zurückgesprungenen Generationen aus dem Zwischenspeicher löschen
-                    for (int i = 0; i < Integer.parseInt(textbox.getText()); i++) {
+                    for (int i = 0; i < Integer.parseInt(txtGenerations.getText()); i++) {
                         previousGens.remove(previousGens.size() - 1);
                     }
                 }
@@ -346,29 +376,30 @@ public class Main extends PApplet {
      * Zudem wird hier das ButtonEvent der verschiedenen Buttons ausprogrammiert.
      */
     private void initComponents() {
-        // Diese Variablen enthalten die Position der nächsten Komponente
-        int xOffset = 0;
-        int yOffset = sketchHeight;
-
         // Start/Stop Button
-        buttonStartStop = new PButton(xOffset, yOffset, componentWidth, componentHeight, "Start / Stop") {
+        buttonStartStop = new PButton(0, 500, componentWidth, componentHeight, "Start / Stop") {
             @Override
             public void buttonEvent() {
                 // Wenn das Spiel läuft, wird es angehalten und die deaktivierten Buttons wieder aktiviert
                 if (running) {
                     running = false;
-                    enableButtons();
+                    enableComponents();
                 } else {
-                    // Wenn Spiel pausiert war, wird er wieder gestartet und die Buttons deaktiviert
+                    // Wenn Spiel pausiert war, wird es wieder gestartet und die Buttons deaktiviert
                     running = true;
-                    disableButtons();
+                    disableComponents();
+
+                    // Falls die Textbox für die Anzahl Generationen pro Sekunden
+                    // leer ist, wird sie auf 1 gesetzt.
+                    if (txtGensPerSecond.getText().equals("")){
+                        txtGensPerSecond.setText("1");
+                    }
                 }
             }
         };
-        xOffset += componentWidth;
 
         // Clear Button
-        buttonClear = new PButton(xOffset, yOffset, componentWidth, componentHeight, "Clear") {
+        buttonClear = new PButton(150, 500, componentWidth, componentHeight, "Clear") {
             @Override
             public void buttonEvent() {
                 // Töten aller Zellen
@@ -377,39 +408,40 @@ public class Main extends PApplet {
                 previousGens.clear();
             }
         };
-        xOffset += componentWidth;
 
         // Random Gen Button
-        buttonRandom = new PButton(xOffset, yOffset, componentWidth, componentHeight, "Random Generation") {
+        buttonRandom = new PButton(300, 500, componentWidth, componentHeight, "Random Generation") {
             @Override
             public void buttonEvent() {
                 // Neue erste Generation setzten
                 prepareFirstGen();
             }
         };
-        xOffset += componentWidth;
 
         // Save Button
-        buttonSave = new PButton(xOffset, yOffset, componentWidth, componentHeight, "Safe Frame") {
+        buttonSave = new PButton(450, 500, componentWidth, componentHeight, "Safe Frame") {
             @Override
             public void buttonEvent() {
                 // Diese Funktion speichert den gesamten Inhalt des aktuellen Programmfensters
                 save("/src/images/save_image" + System.currentTimeMillis() + ".png");
             }
         };
-        xOffset += componentWidth;
 
         // Label CellCounter
-        cellCounter = new PLabel(xOffset, yOffset, componentWidth, componentHeight, "");
-        xOffset += componentWidth;
+        lblCellCounter = new PLabel(600, 500, componentWidth, componentHeight, "");
 
-        // Label für FPS und Generation
-        info = new PLabel(xOffset, yOffset, componentWidth, componentHeight, "");
-        xOffset = 0;
-        yOffset += componentHeight;
+        // Label für FPS und Generationnummer
+        lblInfo = new PLabel(750, 500, componentWidth, componentHeight, "");
+
+        // Label Gen Jumps
+        lblGenerationJumps = new PLabel(0, 550, componentWidth, componentHeight,"Generation Jumps:");
+
+        // Textbox; Dient der Eingabe einer Zahl; die dort eingegebene Zahl wird zum springen zwischen Generationen genutzt
+        // Beispiel: Zahl 5 -> 5 Generationen nach vorne oder hinten springen
+        txtGenerations = new PTextbox(150, 550, 50, componentHeight, "1");
 
         // Previous Gen Button
-        buttonPrevious = new PButton(xOffset, yOffset, componentWidth, componentHeight, "") {
+        buttonPrevious = new PButton(300, 550, componentWidth, componentHeight, "") {
             @Override
             public void buttonEvent() {
                 // Setzt eine vorherige Generation als aktuelle
@@ -417,53 +449,58 @@ public class Main extends PApplet {
                 setPreviousGen();
             }
         };
-        xOffset += componentWidth;
 
         // Next Gen Button
-        buttonNext = new PButton(xOffset, yOffset, componentWidth, componentHeight, "") {
+        buttonNext = new PButton(450, 550, componentWidth, componentHeight, "") {
             @Override
             public void buttonEvent() {
                 // Die Anzahl Generationen wird aus der Textbox ausgelesen
-                if (!textbox.getText().equals("")) {
+                if (!txtGenerations.getText().equals("")) {
                     // Die nächsten Generationen vorbereiten
-                    for (int i = 0; i < Integer.parseInt(textbox.getText()); i++) {
+                    for (int i = 0; i < Integer.parseInt(txtGenerations.getText()); i++) {
                         prepareNextGen();
                     }
                 }
             }
         };
-        xOffset += componentWidth;
 
-        // Textbox; Dient der Eingabe einer Zahl; die dort eingegebene Zahl wird zum springen zwischen Generationen genutzt
-        // Beispiel: Zahl 5 -> 5 Generationen nach vorne oder hinten springen
-        textbox = new PTextbox(xOffset, yOffset, 50, componentHeight, "1");
-        xOffset += 50;
+        // Label für Generation pro Sekunde
+        lblGensPerSecond = new PLabel(600, 550, componentWidth, componentHeight, "Generations per\nsecond:");
+
+        // Textbox zur Eingabe, wie viel Generationen pro Sekunde berechnet werden sollen.
+        txtGensPerSecond = new PTextbox(750, 550, 50, componentHeight, "2");
     }
 
     /**
-     * Diese Methode deaktiviert Buttons.
+     * Diese Methode deaktiviert Buttons und Textboxen.
      */
-    private void disableButtons() {
+    private void disableComponents() {
         buttonClear.setEnabled(false);
         buttonRandom.setEnabled(false);
         buttonPrevious.setEnabled(false);
         buttonNext.setEnabled(false);
         buttonSave.setEnabled(false);
+
+        txtGensPerSecond.setEnable(false);
+        txtGenerations.setEnable(false);
     }
 
     /**
-     * Diese Methode aktiviert Buttons.
+     * Diese Methode aktiviert Buttons und Textboxen.
      */
-    private void enableButtons() {
+    private void enableComponents() {
         buttonClear.setEnabled(true);
         buttonRandom.setEnabled(true);
         buttonPrevious.setEnabled(true);
         buttonNext.setEnabled(true);
         buttonSave.setEnabled(true);
+
+        txtGensPerSecond.setEnable(true);
+        txtGenerations.setEnable(true);
     }
 
     /**
-     * @return Die Anzahl lebendes Zellen
+     * @return Die Anzahl lebender Zellen
      */
     private int countLivingCells() {
         int livingCells = 0;
