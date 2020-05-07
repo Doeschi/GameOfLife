@@ -14,7 +14,7 @@ import java.util.Random;
  */
 public class Main extends PApplet {
 
-    public static final int cellSize = 1;
+    public static final int cellSize = 5;
     public static final int componentWidth = 150;
     public static final int componentHeight = 50;
 
@@ -69,7 +69,7 @@ public class Main extends PApplet {
     @Override
     public void setup() {
         previousGens = new ArrayList<>();
-        frameRate(30);
+        frameRate(100);
         textSize(14);
         prepareFirstGen();
         initComponents();
