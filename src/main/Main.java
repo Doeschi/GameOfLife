@@ -6,9 +6,15 @@ import processing.core.PApplet;
 import java.util.ArrayList;
 import java.util.Random;
 
+/**
+ * Main Klasse des Programms. Diese Klasse enthält die Logik des GoL.
+ * Die Klasse erbt von PApplet, einer Klasse des Processing Frameworks.
+ * Diese Klasse erstellt ein Fenster, welches einmal pro Frame neu gezeichnet wird (in der draw() Methode).
+ * Die Funktionen zum Zeichnen bietet auch die PApplet Klasse an.
+ */
 public class Main extends PApplet {
 
-    public static final int cellSize = 5;
+    public static final int cellSize = 1;
     public static final int componentWidth = 150;
     public static final int componentHeight = 50;
 
@@ -43,6 +49,7 @@ public class Main extends PApplet {
 
     // Boolean, ob das Spiel läuft oder nicht
     private boolean running;
+    // Zeitpunkt, wann die letze Generation erstellt wurde
     private int timeOfLastGen;
 
     /**
@@ -64,9 +71,6 @@ public class Main extends PApplet {
         previousGens = new ArrayList<>();
         frameRate(30);
         textSize(14);
-        if (cellSize == 1) {
-            noStroke();
-        }
         prepareFirstGen();
         initComponents();
         updateUI();

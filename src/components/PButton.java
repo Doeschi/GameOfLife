@@ -60,7 +60,9 @@ public abstract class PButton extends BaseTextComponent {
      * @param textColor  Text Farbe
      */
     private void drawButton(PApplet pApplet, int background, int textColor) {
-        // Setz die Füllfarbe
+        // Setzt die dicke der Aussenlinien auf 1px
+        pApplet.strokeWeight(1);
+        // Setzt die Füllfarbe
         pApplet.fill(background);
         pApplet.rect(x, y, width, height);
         // Setzt die Füllfarbe

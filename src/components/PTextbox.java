@@ -46,6 +46,8 @@ public class PTextbox extends BaseTextComponent {
      */
     @Override
     public void draw(PApplet pApplet) {
+        // Setzt die dicke der Aussenlinien auf 1px
+        pApplet.strokeWeight(1);
         // Setz die Füllfarbe des Hintergrundes
         pApplet.fill(255);
         pApplet.rect(x, y, width, height);
