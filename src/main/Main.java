@@ -14,7 +14,7 @@ import java.util.Random;
  */
 public class Main extends PApplet {
 
-    public static final int cellSize = 5;
+    public static final int cellSize = 10;
     public static final int componentWidth = 150;
     public static final int componentHeight = 50;
 
@@ -49,8 +49,8 @@ public class Main extends PApplet {
 
     // Boolean, ob das Spiel läuft oder nicht
     private boolean running;
-    // Zeitpunkt, wann die letze Generation erstellt wurde
-    private int timeOfLastGen;
+
+    private int counter = 0;
 
     /**
      * Diese Methode wird beim Programmstart als erstes aufgerufen.
@@ -88,10 +88,11 @@ public class Main extends PApplet {
         // Komplettes Fenster Weiss übermalen
         background(255);
 
-        // Wenn das Spiel läuft und mindestens 0.5s seit der letzten Generation vergangen sind,
-        // wird eine neue Generation vorbereitet.
-        if (running && millis() - timeOfLastGen > 1000 / Integer.parseInt(txtGensPerSecond.getText())) {
+        if (running && counter % (100 / Integer.parseInt(txtGensPerSecond.getText())) == 0){
             prepareNextGen();
+        }
+        if (running){
+            counter++;
         }
         // Spielfeld und GUI zeichnen
         drawWindow();
@@ -215,7 +216,6 @@ public class Main extends PApplet {
 
         // Zwischengespeicherte Generation löschen
         previousGens.clear();
-        timeOfLastGen = millis();
     }
 
     /**
@@ -237,7 +237,6 @@ public class Main extends PApplet {
 
         // Die vorbereitete Generation wird als aktuelle Generation gesetzt
         currentGen = nextGen;
-        timeOfLastGen = millis();
     }
 
     /**
@@ -299,14 +298,14 @@ public class Main extends PApplet {
      */
     private void updateUI() {
         // Framerate auf 3 Stellen genau runden
-        float currentFps = Math.round(frameRate * 1000);
+        float currentFps = Math.round(frameRate * 1000) / 1000.0f;
 
         // Neue FPS Zahl und Nummer der aktuellen Generation setzten.
-        lblInfo.setText("FPS: " + (currentFps / 1000) + "\nGen: " + previousGens.size());
+        lblInfo.setText("FPS: " + currentFps + "\nGen: " + previousGens.size());
 
         // sketchHeight/cellSize ergibt die Anzahl Zeilen, sketchWidth/cellSize ergibt die Anzahl Spalten
         // Anzahl aller Zeller und Anzahl lebender Zellen setzen
-        lblCellCounter.setText("Cells: " + (sketchHeight / cellSize * sketchWidth / cellSize) + "\nLiving: " + (countLivingCells()));
+        lblCellCounter.setText("Cells: " + (sketchHeight / cellSize * sketchWidth / cellSize) + "\nLiving: " + countLivingCells());
 
         // Wenn kein Text in der Textbox steht, wird "0" geschrieben
         // Ansonsten wird die Zahl aus der Textbox verwendet
@@ -335,7 +334,7 @@ public class Main extends PApplet {
     /**
      * Diese Methode setzt eine frühere Generation als die aktuelle.
      * Die Anzahl Generationen, die zurück gesprungen wird, wird aus dem Textfeld ausgelesen.
-     * Die Nummer der Generation entspricht ihrem Index im Array der vergangen Generationen.
+     * Die Nummer der Generation entspricht ihrem Index im Array der vergangenen Generationen.
      */
     private void setPreviousGen() {
         // Wenn überhaupt vorherige Generation existieren
