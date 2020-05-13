@@ -10,6 +10,10 @@ import processing.core.PApplet;
 public class Cell extends BaseComponent {
     private boolean alive;
 
+    private int red;
+    private int green;
+    private int blue;
+
     /**
      * Konstruktor der Zelle. Die Zelle wird als tote Zelle instanziert.
      *
@@ -18,7 +22,7 @@ public class Cell extends BaseComponent {
      */
     public Cell(int x, int y) {
         super(x, y);
-        alive = false;
+        kill();
     }
 
     /**
@@ -33,6 +37,14 @@ public class Cell extends BaseComponent {
         this.alive = alive;
     }
 
+    public Cell(int x, int y, boolean alive, int red, int green, int blue) {
+        super(x, y);
+        this.alive = alive;
+        this.red = red;
+        this.green = green;
+        this.blue = blue;
+    }
+
     /**
      * Zeichnet die Zelle als Quadrat. Eine tote Zelle wird weiss gezeichnet (255),
      * eine lebende scharz (0).
@@ -41,16 +53,11 @@ public class Cell extends BaseComponent {
      */
     @Override
     public void draw(PApplet pApplet) {
-//        if (Main.cellSize == 1){
-//            pApplet.strokeWeight(0);
-//        } else {
-//            pApplet.strokeWeight(1);
-//        }
         pApplet.noStroke();
         if (alive) {
             pApplet.fill(255);
         } else {
-            pApplet.fill(0);
+            pApplet.fill(red, green, blue);
         }
         pApplet.square(x, y, Main.cellSize);
         pApplet.g.stroke = true;
@@ -64,6 +71,15 @@ public class Cell extends BaseComponent {
      * @param cells
      */
     public void prepareNextGen(Cell[][] cells) {
+        if(Main.counter % 2 == 0) {
+            if (red > 0) {
+                red--;
+            }
+            else if (blue > 65) {
+                blue--;
+            }
+        }
+
         int xPos = x / Main.cellSize;
         int yPos = y / Main.cellSize;
 
@@ -95,11 +111,11 @@ public class Cell extends BaseComponent {
         else if (alive) {
             // Weniger als 2 Nachbaren (0 oder 1)
             if (neighbors < 2) {
-                alive = false;
+                kill();
             }
             // Mehr als 3 Nachbaren (4, 5, 6, 7, 8)
             else if (neighbors > 3) {
-                alive = false;
+                kill();
             }
         }
     }
@@ -116,6 +132,9 @@ public class Cell extends BaseComponent {
      */
     public void kill() {
         alive = false;
+        red = 255;
+        green = 0;
+        blue = 255;
     }
 
     /**
@@ -131,6 +150,6 @@ public class Cell extends BaseComponent {
      * @return Kopie von sich selbst
      */
     public Cell getCopy() {
-        return new Cell(x, y, alive);
+        return new Cell(x, y, alive, red, green, blue);
     }
 }

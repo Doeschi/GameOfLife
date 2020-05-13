@@ -14,19 +14,19 @@ import java.util.Random;
  */
 public class Main extends PApplet {
 
-    public static final int cellSize = 10;
+    public static final int cellSize = 2;
     public static final int componentWidth = 150;
     public static final int componentHeight = 50;
 
     public static final int windowWidth = 900;
     public static final int windowHeight = 600;
     // Breite des GoL Feldes
-    public static final int sketchWidth = windowWidth;
+    public static int sketchWidth = windowWidth;
     // Höhe des GoL Feldes
-    public static final int sketchHeight = windowHeight - (2 * componentHeight);
+    public static int sketchHeight = windowHeight - (2 * componentHeight);
 
     // Prozentsatz, wie viele Zellen zu Beginn leben sollen
-    public static final int firstGenProbability = 60;
+    public static final int firstGenProbability = 30;
 
     private Cell[][] currentGen;
     // Arrayliste mit allen vergangen Genertationen
@@ -48,9 +48,9 @@ public class Main extends PApplet {
     private PTextbox txtGensPerSecond;
 
     // Boolean, ob das Spiel läuft oder nicht
-    private boolean running;
+    public static boolean running;
 
-    private int counter = 0;
+    public static int counter = 0;
 
     /**
      * Diese Methode wird beim Programmstart als erstes aufgerufen.
@@ -59,6 +59,7 @@ public class Main extends PApplet {
     @Override
     public void settings() {
         size(windowWidth, windowHeight);
+//        fullScreen();
     }
 
     /**
@@ -68,6 +69,8 @@ public class Main extends PApplet {
      */
     @Override
     public void setup() {
+//        sketchWidth = width;
+//        sketchHeight = height;
         previousGens = new ArrayList<>();
         frameRate(100);
         textSize(14);
@@ -88,13 +91,14 @@ public class Main extends PApplet {
         // Komplettes Fenster Weiss übermalen
         background(255);
 
-        if (running && counter % (100 / Integer.parseInt(txtGensPerSecond.getText())) == 0){
+        if (running){ // && counter % (100 / Integer.parseInt(txtGensPerSecond.getText())) == 0){
             prepareNextGen();
         }
         if (running){
             counter++;
         }
         // Spielfeld und GUI zeichnen
+        updateUI();
         drawWindow();
     }
 
@@ -116,6 +120,16 @@ public class Main extends PApplet {
             } else{
                 txtGensPerSecond.addChar(key);
             }
+        }
+
+        if (key == 's'){
+            running = !running;
+        } else if (key == 'a'){
+            setPreviousGen();
+        } else if(key == 'd'){
+            prepareNextGen();
+        } else if(key == 'p'){
+            save("/src/images/save_image" + System.currentTimeMillis() + ".jpg");
         }
     }
 
@@ -264,9 +278,6 @@ public class Main extends PApplet {
      * In dieser Methode wird GoL Spielfeld und die GUI Komponenten gezeichnet.
      */
     private void drawWindow() {
-        // Updated den Text der Labels
-        updateUI();
-
         // Loop durch alle Zellen des Spielfeldes
         for (Cell[] cellRow : currentGen) {
             for (Cell cell : cellRow) {
@@ -407,6 +418,7 @@ public class Main extends PApplet {
             public void buttonEvent() {
                 // Töten aller Zellen
                 killAll();
+
                 // Alle Zwischengespeicherten Generationen löschen (Clear setzt die Generation auf 0)
                 previousGens.clear();
             }
