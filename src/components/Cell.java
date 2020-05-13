@@ -41,18 +41,19 @@ public class Cell extends BaseComponent {
      */
     @Override
     public void draw(PApplet pApplet) {
-        if (Main.cellSize == 1){
-            pApplet.strokeWeight(0);
-        } else {
-            pApplet.strokeWeight(1);
-        }
-
+//        if (Main.cellSize == 1){
+//            pApplet.strokeWeight(0);
+//        } else {
+//            pApplet.strokeWeight(1);
+//        }
+        pApplet.noStroke();
         if (alive) {
-            pApplet.fill(0);
-        } else {
             pApplet.fill(255);
+        } else {
+            pApplet.fill(0);
         }
         pApplet.square(x, y, Main.cellSize);
+        pApplet.g.stroke = true;
     }
 
     /**

@@ -471,7 +471,7 @@ public class Main extends PApplet {
         lblGensPerSecond = new PLabel(600, 550, componentWidth, componentHeight, "Generations per\nsecond:");
 
         // Textbox zur Eingabe, wie viel Generationen pro Sekunde berechnet werden sollen.
-        txtGensPerSecond = new PTextbox(750, 550, 50, componentHeight, "2");
+        txtGensPerSecond = new PTextbox(750, 550, 50, componentHeight, "30");
     }
 
     /**
